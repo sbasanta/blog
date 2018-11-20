@@ -15,7 +15,10 @@ Route::group(['middleware'=>['web']], function()
 
 Route::resource('posts','postController');
 
-Route::resource('images','imageController');
+//multiple image upload
+Route::get('image','imageController@index');
+Route::post('image-submit','imageController@store');
+
 
 Route::get('Contact', 'pagesController@getContact');
 
@@ -30,6 +33,10 @@ Route::resource('categories','categoryController',['except'=>['create']]);
 Route::get('/','pagesController@getIndex');
 
 Auth::routes();
+
+//route for the Album
+Route::resource('album','AlbumController');
+
 
 });
 

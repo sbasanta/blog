@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Image;
-use Illuminate\Support\Facades\Storage;
+use App\Album;
+use Image;
+use Session;
 
-class imageController extends Controller
+class AlbumController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,7 +16,9 @@ class imageController extends Controller
      */
     public function index()
     {
-        return view('images.image');
+        
+        $albums=Album::all();
+        return view('album.index')->withalbums($albums);
     }
 
     /**
@@ -25,7 +28,7 @@ class imageController extends Controller
      */
     public function create()
     {
-        //
+        return view('album.album');
     }
 
     /**
@@ -36,35 +39,34 @@ class imageController extends Controller
      */
     public function store(Request $request)
     {
-         $imagename=[];
-    
-            $imageName=$request->file->getClientOriginalName();
-            $request->file->move(public_path('upload'),$imageName);
-            $response= response()->json(['uploaded'=>'/upload/'.$imageName]);
-           $imagename[]=$imageName;
-            foreach($imagename as $iname)
-            {
-                
-                    $images= new Image();
-                    $images->image=$iname;
-                    
-                    $images->save();
-                   
+        //validation of the form
 
-                    return $response;     
+        //store in database
+        $album=new Album;
+        $album->etitle=$request->etitle;
+        $album->ntitle=$request->ntitle;
+        $album->event_location=$request->event_location;
+        $album->event_date=$request->event_date;
+        $album->link=$request->link;
 
-               }
-            
+        if($request->hasfile('featured_image'))
+        {
+            $image=$request->file('featured_image');
+            $filename=time().'.'.$image->getClientOriginalExtension();
+            $location=public_path('images/'.$filename);
+            Image::make($image)->resize(800,400)->save($location);
+            $album->featured_image=$filename;
+
+        }
+        // dd($request->all());die;
+        $album->save();
+
+        Session::flash('album created successfully');
+        return redirect()->back();
+        // return redirect()->route('album.show',$album->id);
 
 
-
-
-            
-      
-    
-
-
-}
+            }
 
     /**
      * Display the specified resource.
@@ -74,7 +76,8 @@ class imageController extends Controller
      */
     public function show($id)
     {
-        //
+        $album=Album::find($id);
+        
     }
 
     /**
@@ -85,7 +88,7 @@ class imageController extends Controller
      */
     public function edit($id)
     {
-        //
+        $album::$Album::find($id);
     }
 
     /**
@@ -97,7 +100,7 @@ class imageController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        
     }
 
     /**
